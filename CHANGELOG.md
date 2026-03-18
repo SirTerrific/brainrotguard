@@ -2,17 +2,12 @@
 ## v1.30.0 - 2026-03-17
 
 **Added**
-- `/autoload [on|off]` toggle: switch homepage between Show More buttons (default) and infinite scroll mode
-- Norwegian translations for autoload command messages
-
-## v1.29.0 - 2026-03-17
-
-**Added**
 - i18n/localization system with English and Norwegian translations (PR #26 -- thanks @NoLooseEnds)
 - PWA support: installable as tablet app with manifest, service worker, standalone mode, safe-area insets (PR #29 -- thanks @NoLooseEnds)
 - Watch autoplay/resume: remembers playback position via localStorage, more reliable auto-start (PR #30 -- thanks @NoLooseEnds)
 - Localized app name: "BrainRotGuard" renders as "HjerneVakt" in Norwegian (PR #31 -- thanks @NoLooseEnds)
-- New `/api/catalog/status` endpoint for lightweight cache polling (PR #27 -- thanks @NoLooseEnds)
+- `/autoload [on|off]` toggle: switch homepage between Show More buttons (default) and infinite scroll mode (PR #27 -- thanks @NoLooseEnds)
+- New `/api/catalog/status` endpoint for lightweight cache polling (PR #27)
 - Re-request flow: re-requesting a pending video resends the Telegram notification to parent (PR #27)
 - IntersectionObserver-based infinite scroll replaces "Show More" button on search results (PR #27)
 - Circular profile avatars with username in header (PR #28)
