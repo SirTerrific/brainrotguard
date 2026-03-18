@@ -509,10 +509,7 @@
         return fetch(url).then(function(r) { return r.json(); }).then(function(data) {
             if (replace) catalogGrid.textContent = '';
             if (data.videos.length === 0 && replace) {
-                var p = document.createElement('p');
-                p.style.cssText = 'color:#666;text-align:center;padding:20px;';
-                p.textContent = noVideosFoundText;
-                catalogGrid.appendChild(p);
+                showGridPlaceholder(catalogGrid, noVideosFoundText);
             } else {
                 data.videos.forEach(function(v) { catalogGrid.appendChild(buildCard(v)); });
             }
@@ -531,12 +528,16 @@
         }
     }
 
-    function showFilterError() {
-        catalogGrid.textContent = '';
+    function showGridPlaceholder(grid, text, color) {
+        grid.textContent = '';
         var p = document.createElement('p');
-        p.style.cssText = 'color:#888;text-align:center;padding:20px;';
-        p.textContent = failedToLoadText;
-        catalogGrid.appendChild(p);
+        p.style.cssText = 'color:' + (color || '#666') + ';text-align:center;padding:20px;';
+        p.textContent = text;
+        grid.appendChild(p);
+    }
+
+    function showFilterError() {
+        showGridPlaceholder(catalogGrid, failedToLoadText, '#888');
         filterHasMore = false;
         if (autoloadEnabled) catalogAutoPager.update();
         else if (showMoreWrap) showMoreWrap.style.display = 'none';
@@ -571,11 +572,7 @@
             document.querySelectorAll('.cat-card, .cat-card-all').forEach(function(p) { p.classList.remove('active'); });
             var allCatPill = document.querySelector('.cat-card-all[data-category="__all__"]');
             if (allCatPill) allCatPill.classList.add('active');
-            catalogGrid.textContent = '';
-            var loadP = document.createElement('p');
-            loadP.style.cssText = 'color:#666;text-align:center;padding:20px;';
-            loadP.textContent = loadingText;
-            catalogGrid.appendChild(loadP);
+            showGridPlaceholder(catalogGrid, loadingText);
 
             fetchCatalog(channel, 0, PAGE_SIZE, true)
                 .then(updateShowMoreAfterFilter)
@@ -618,11 +615,7 @@
             var allChPill = document.querySelector('.channel-pill[data-channel="__all__"]');
             if (allChPill) allChPill.classList.add('active');
 
-            catalogGrid.textContent = '';
-            var loadP = document.createElement('p');
-            loadP.style.cssText = 'color:#666;text-align:center;padding:20px;';
-            loadP.textContent = loadingText;
-            catalogGrid.appendChild(loadP);
+            showGridPlaceholder(catalogGrid, loadingText);
             fetchCatalog('', 0, PAGE_SIZE, true)
                 .then(updateShowMoreAfterFilter)
                 .catch(showFilterError);
@@ -718,24 +711,22 @@
     }
 
     // -- Autoload OFF: click-to-fetch Show More buttons (pre-PR pattern) --
-    if (!autoloadEnabled && showMoreBtn) {
-        showMoreBtn.addEventListener('click', function() {
-            showMoreBtn.disabled = true;
-            showMoreBtn.textContent = loadingText;
-            loadMoreCatalog()
+    function attachShowMoreBtn(btn, wrap, loadFn) {
+        if (!btn) return;
+        btn.addEventListener('click', function() {
+            btn.disabled = true;
+            btn.textContent = loadingText;
+            loadFn()
                 .then(function(data) {
-                    if (!data.has_more) {
-                        showMoreWrap.style.display = 'none';
-                    } else {
-                        showMoreBtn.disabled = false;
-                        showMoreBtn.textContent = showMoreText;
-                    }
+                    if (!data.has_more) { wrap.style.display = 'none'; }
+                    else { btn.disabled = false; btn.textContent = showMoreText; }
                 })
-                .catch(function() {
-                    showMoreBtn.disabled = false;
-                    showMoreBtn.textContent = showMoreText;
-                });
+                .catch(function() { btn.disabled = false; btn.textContent = showMoreText; });
         });
+    }
+
+    if (!autoloadEnabled) {
+        attachShowMoreBtn(showMoreBtn, showMoreWrap, loadMoreCatalog);
     }
 
     // Shorts
@@ -851,24 +842,8 @@
         });
     }
 
-    if (!autoloadEnabled && requestsShowMoreBtn) {
-        requestsShowMoreBtn.addEventListener('click', function() {
-            requestsShowMoreBtn.disabled = true;
-            requestsShowMoreBtn.textContent = loadingText;
-            loadMoreRequests()
-                .then(function(data) {
-                    if (!data.has_more) {
-                        requestsShowMoreWrap.style.display = 'none';
-                    } else {
-                        requestsShowMoreBtn.disabled = false;
-                        requestsShowMoreBtn.textContent = showMoreText;
-                    }
-                })
-                .catch(function() {
-                    requestsShowMoreBtn.disabled = false;
-                    requestsShowMoreBtn.textContent = showMoreText;
-                });
-        });
+    if (!autoloadEnabled) {
+        attachShowMoreBtn(requestsShowMoreBtn, requestsShowMoreWrap, loadMoreRequests);
     }
 })();
 </script>
