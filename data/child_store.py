@@ -83,6 +83,9 @@ class ChildStore:
     def record_watch_seconds(self, video_id, seconds):
         return self._store.record_watch_seconds(video_id, seconds, profile_id=self.profile_id)
 
+    def update_playback_position(self, video_id, position_seconds):
+        return self._store.update_playback_position(video_id, position_seconds, profile_id=self.profile_id)
+
     def get_video_watch_minutes(self, video_id):
         return self._store.get_video_watch_minutes(video_id, profile_id=self.profile_id)
 

@@ -16,12 +16,13 @@ from unittest.mock import AsyncMock
 
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
+from starlette.requests import Request as StarletteRequest
 from starlette.middleware.sessions import SessionMiddleware
 
 from config import WebConfig, YouTubeConfig, WatchLimitsConfig
 from data.video_store import VideoStore
 from data.child_store import ChildStore
-from web.shared import templates, limiter, static_dir, register_filters
+from web.shared import templates, limiter, static_dir, register_filters, _rate_limit_key
 from web.cache import init_app_state
 from web.middleware import PinAuthMiddleware
 from web.routers.auth import router as auth_router
@@ -218,6 +219,34 @@ class TestPageLoads:
         assert 'rel="manifest" href="/manifest.webmanifest"' in resp.text
         assert 'navigator.serviceWorker.register("/service-worker.js")' in resp.text
 
+
+
+class TestLimiterKey:
+    def test_prefers_forwarded_for_header(self):
+        request = StarletteRequest({
+            "type": "http",
+            "headers": [
+                (b"x-forwarded-for", b"203.0.113.10, 10.0.0.1"),
+                (b"x-real-ip", b"198.51.100.7"),
+            ],
+            "client": ("127.0.0.1", 1234),
+        })
+        assert _rate_limit_key(request) == "203.0.113.10"
+
+    def test_falls_back_to_real_ip_and_client(self):
+        request = StarletteRequest({
+            "type": "http",
+            "headers": [(b"x-real-ip", b"198.51.100.7")],
+            "client": ("127.0.0.1", 1234),
+        })
+        assert _rate_limit_key(request) == "198.51.100.7"
+
+        request = StarletteRequest({
+            "type": "http",
+            "headers": [],
+            "client": ("127.0.0.1", 1234),
+        })
+        assert _rate_limit_key(request) == "127.0.0.1"
 
 
 # ---------------------------------------------------------------------------
@@ -452,6 +481,29 @@ class TestWatchPage:
     def test_watch_nonexistent_redirects(self, auth_client):
         resp = auth_client.get("/watch/nonExist123", follow_redirects=False)
         assert resp.status_code in (302, 303)
+
+    def test_watch_heartbeat_updates_playback_position(self, auth_client, store):
+        cs = ChildStore(store, "default")
+        cs.add_video(
+            video_id="watchPos123",
+            title="Watch Position",
+            channel_name="Test Channel",
+            duration=120,
+        )
+        cs.update_status("watchPos123", "approved")
+
+        watch_resp = auth_client.get("/watch/watchPos123")
+        assert watch_resp.status_code == 200
+
+        heartbeat_resp = auth_client.post("/api/watch-heartbeat", json={
+            "video_id": "watchPos123",
+            "seconds": 5,
+            "position_seconds": 90,
+        })
+        assert heartbeat_resp.status_code == 200
+
+        video = cs.get_video("watchPos123")
+        assert video["resume_seconds"] == 90
 
 
 # ---------------------------------------------------------------------------

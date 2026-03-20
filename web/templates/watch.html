@@ -264,6 +264,16 @@ function onYouTubeIframeAPIReady() {
     });
 }
 
+function getCurrentPlaybackSeconds() {
+    if (!player || !player.getCurrentTime) return 0;
+    try {
+        var current = player.getCurrentTime();
+        return Number.isFinite(current) && current > 0 ? current : 0;
+    } catch (e) {
+        return 0;
+    }
+}
+
 var endCheckInterval = null;
 
 function onPlayerStateChange(event) {
@@ -274,7 +284,7 @@ function onPlayerStateChange(event) {
         restorePlaybackPosition();
         startPositionSaving();
         if (!heartbeatInterval) {
-            heartbeatInterval = setInterval(sendHeartbeat, 15000);
+            heartbeatInterval = setInterval(sendHeartbeat, 10000);
         }
         if (hasTimeLimit && !countdownInterval) {
             countdownInterval = setInterval(tickCountdown, 1000);
@@ -466,7 +476,7 @@ function timesUp() {
     var overlay = document.getElementById('time-overlay');
     if (overlay) overlay.style.display = 'flex';
     if (playSeconds > 0) {
-        doHeartbeat(playSeconds);
+        doHeartbeat(playSeconds, Math.floor(getCurrentPlaybackSeconds()));
         playSeconds = 0;
     }
     setTimeout(function() { window.location.href = '/'; }, 3000);
@@ -475,15 +485,38 @@ function timesUp() {
 function sendHeartbeat() {
     if (playSeconds <= 0) return;
     var secs = playSeconds;
+    var positionSeconds = Math.floor(getCurrentPlaybackSeconds());
     playSeconds = 0;
-    doHeartbeat(secs);
+    doHeartbeat(secs, positionSeconds);
 }
 
-function doHeartbeat(secs) {
+function flushWatchProgressOnExit() {
+    var positionSeconds = Math.floor(getCurrentPlaybackSeconds());
+    if (playSeconds <= 0 && positionSeconds <= 0) return;
+    var secs = Math.min(Math.max(playSeconds, 0), 60);
+    playSeconds = 0;
+    var payload = JSON.stringify({video_id: videoId, seconds: secs, position_seconds: positionSeconds});
+    if (navigator.sendBeacon) {
+        try {
+            var blob = new Blob([payload], {type: 'application/json'});
+            if (navigator.sendBeacon('/api/watch-heartbeat', blob)) {
+                return;
+            }
+        } catch (e) {}
+    }
     fetch('/api/watch-heartbeat', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({video_id: videoId, seconds: secs})
+        body: payload,
+        keepalive: true
+    }).catch(function() {});
+}
+
+function doHeartbeat(secs, positionSeconds) {
+    fetch('/api/watch-heartbeat', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({video_id: videoId, seconds: secs, position_seconds: Math.max(positionSeconds || 0, 0)})
     }).then(function(r) {
         if (r.status === 403) {
             timesUp();
@@ -500,11 +533,15 @@ function doHeartbeat(secs) {
     }).catch(function() {});
 }
 
-window.addEventListener('pagehide', savePlaybackPosition);
+window.addEventListener('pagehide', function() {
+    savePlaybackPosition();
+    flushWatchProgressOnExit();
+});
 window.addEventListener('focus', attemptAutoplayIfActive);
 document.addEventListener('visibilitychange', function() {
     if (document.visibilityState === 'hidden') {
         savePlaybackPosition();
+        flushWatchProgressOnExit();
         return;
     }
     attemptAutoplayIfActive();

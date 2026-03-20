@@ -105,6 +105,7 @@ class VideoStore:
         self._add_column_if_missing("profiles", "avatar_icon", "TEXT")
         self._add_column_if_missing("profiles", "avatar_color", "TEXT")
         self._add_column_if_missing("videos", "yt_view_count", "INTEGER DEFAULT 0")
+        self._add_column_if_missing("videos", "resume_seconds", "INTEGER DEFAULT 0")
         self.conn.execute("""
             CREATE TABLE IF NOT EXISTS settings (
                 key TEXT PRIMARY KEY,
@@ -143,7 +144,7 @@ class VideoStore:
         self._migrate_profile_id()
 
     _ALLOWED_TABLES = {"channels", "videos", "watch_log", "settings", "search_log", "word_filters", "profiles"}
-    _ALLOWED_COLUMNS = {"channel_id", "handle", "category", "is_short", "profile_id", "avatar_icon", "avatar_color", "yt_view_count"}
+    _ALLOWED_COLUMNS = {"channel_id", "handle", "category", "is_short", "profile_id", "avatar_icon", "avatar_color", "yt_view_count", "resume_seconds"}
 
     def _add_column_if_missing(self, table: str, column: str, col_type: str) -> None:
         """Add a column to a table if it doesn't already exist (migration helper)."""
@@ -202,16 +203,17 @@ class VideoStore:
                 channel_id TEXT,
                 category TEXT,
                 is_short INTEGER DEFAULT 0,
+                resume_seconds INTEGER DEFAULT 0,
                 profile_id TEXT NOT NULL DEFAULT 'default',
                 UNIQUE(video_id, profile_id)
             );
             INSERT OR IGNORE INTO videos_new
                 (id, video_id, title, channel_name, thumbnail_url, duration, status,
                  requested_at, decided_at, view_count, last_viewed_at,
-                 channel_id, category, is_short, profile_id)
+                 channel_id, category, is_short, resume_seconds, profile_id)
             SELECT id, video_id, title, channel_name, thumbnail_url, duration, status,
                    requested_at, decided_at, view_count, last_viewed_at,
-                   channel_id, category, COALESCE(is_short, 0), 'default'
+                   channel_id, category, COALESCE(is_short, 0), COALESCE(resume_seconds, 0), 'default'
             FROM videos;
             DROP TABLE videos;
             ALTER TABLE videos_new RENAME TO videos;
@@ -710,6 +712,16 @@ class VideoStore:
             self.conn.execute(
                 "INSERT INTO watch_log (video_id, duration, profile_id) VALUES (?, ?, ?)",
                 (video_id, seconds, profile_id),
+            )
+            self.conn.commit()
+
+    def update_playback_position(self, video_id: str, position_seconds: int,
+                                 profile_id: str = "default") -> None:
+        """Persist the latest playback position for a video/profile."""
+        with self._lock:
+            self.conn.execute(
+                "UPDATE videos SET resume_seconds = ? WHERE video_id = ? AND profile_id = ?",
+                (max(position_seconds, 0), video_id, profile_id),
             )
             self.conn.commit()
 

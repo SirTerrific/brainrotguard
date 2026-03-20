@@ -3,6 +3,7 @@
 Neutral module with no imports from web.* — safe for all web modules to import.
 """
 
+from fastapi import Request
 from fastapi.templating import Jinja2Templates
 from jinja2 import pass_context
 from pathlib import Path
@@ -17,7 +18,22 @@ templates_dir = Path(__file__).parent / "templates"
 static_dir = Path(__file__).parent / "static"
 
 templates = Jinja2Templates(directory=str(templates_dir))
-limiter = Limiter(key_func=get_remote_address)
+
+
+def _rate_limit_key(request: Request) -> str:
+    """Prefer proxy-forwarded client IPs when present."""
+    forwarded_for = request.headers.get("x-forwarded-for", "")
+    if forwarded_for:
+        client_ip = forwarded_for.split(",", 1)[0].strip()
+        if client_ip:
+            return client_ip
+    real_ip = request.headers.get("x-real-ip", "").strip()
+    if real_ip:
+        return real_ip
+    return get_remote_address(request)
+
+
+limiter = Limiter(key_func=_rate_limit_key)
 
 
 @pass_context
