@@ -323,6 +323,15 @@ class TestVideoStoreWatchTracking:
 
 
 class TestVideoStoreSearch:
+    def test_update_playback_position(self, video_store):
+        video_store.add_video("resume12345a", "Resume Video", "Ch", duration=120)
+        video_store.update_status("resume12345a", "approved")
+
+        video_store.update_playback_position("resume12345a", 95)
+
+        video = video_store.get_video("resume12345a")
+        assert video["resume_seconds"] == 95
+
     def test_record_and_get_searches(self, video_store):
         video_store.record_search("dinosaurs", 5)
         video_store.record_search("cats", 10)

@@ -1,5 +1,6 @@
 """Shared constants, models, and helper functions used across web routers."""
 
+from typing import Optional
 import re
 import secrets
 
@@ -45,6 +46,7 @@ _HEARTBEAT_EVICT_AGE = 120     # evict entries older than this (seconds)
 class HeartbeatRequest(BaseModel):
     video_id: str
     seconds: int
+    position_seconds: Optional[int] = None
 
 
 # ---------------------------------------------------------------------------

@@ -204,6 +204,8 @@ async def watch_heartbeat(request: Request, body: HeartbeatRequest):
 
     if seconds > 0:
         cs.record_watch_seconds(vid, seconds)
+    if body.position_seconds is not None:
+        cs.update_playback_position(vid, body.position_seconds)
 
     # Per-category time limit check
     video_cat = resolve_video_category(video, store=cs) if video else "fun"
