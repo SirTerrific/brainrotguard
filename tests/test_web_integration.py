@@ -220,10 +220,9 @@ class TestPageLoads:
         assert 'rel="manifest" href="/manifest.webmanifest"' in resp.text
         assert 'navigator.serviceWorker.register("/service-worker.js")' in resp.text
 
-    def test_home_includes_history_link_and_active_row(self, auth_client):
+    def test_home_includes_active_row(self, auth_client):
         resp = auth_client.get("/")
         assert resp.status_code == 200
-        assert 'href="/history"' in resp.text
         assert "active-dismiss-btn" in resp.text
         assert "active-dismiss-icon" in resp.text
         assert "active-empty-state" in resp.text
