@@ -473,11 +473,6 @@ main {
     margin: 0 auto 32px;
 }
 
-.history-page,
-.requests-page {
-    max-width: 1200px;
-}
-
 .requests-page {
     display: grid;
     gap: 1.5rem;
@@ -487,14 +482,6 @@ main {
     justify-self: start;
 }
 
-.request-cat-badge {
-    position: static;
-    display: inline-flex;
-    margin-left: 6px;
-    vertical-align: middle;
-    font-size: 0.65rem;
-    padding: 2px 6px;
-}
 
 .requests-page-section {
     display: grid;
@@ -1721,6 +1708,11 @@ main {
     margin: 0 auto;
 }
 
+.activity-container.history-page,
+.activity-container.requests-page {
+    max-width: 1200px;
+}
+
 .activity-header {
     margin-bottom: 20px;
 }
@@ -1885,6 +1877,17 @@ main {
 }
 .category-edu { background: #2e7d32; }
 .category-fun { background: #e65100; }
+
+.category-badge.request-cat-badge {
+    position: static;
+    display: inline-flex;
+    margin-left: 6px;
+    vertical-align: middle;
+    font-size: 0.65rem;
+    padding: 2px 6px;
+    top: auto;
+    left: auto;
+}
 
 /* Category filter cards */
 .cat-cards-row {
