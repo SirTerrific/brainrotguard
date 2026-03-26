@@ -473,6 +473,11 @@ main {
     margin: 0 auto 32px;
 }
 
+.history-page,
+.requests-page {
+    max-width: 1200px;
+}
+
 .requests-page {
     display: grid;
     gap: 1.5rem;
@@ -480,6 +485,15 @@ main {
 
 .requests-page > .back-link {
     justify-self: start;
+}
+
+.request-cat-badge {
+    position: static;
+    display: inline-flex;
+    margin-left: 6px;
+    vertical-align: middle;
+    font-size: 0.65rem;
+    padding: 2px 6px;
 }
 
 .requests-page-section {
@@ -2372,14 +2386,22 @@ main {
 
 .avatar-menu-link,
 .avatar-switch-link {
-    display: block;
-    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
     padding-top: 12px;
     border-top: 1px solid var(--border-subtle);
     font-size: 13px;
     color: var(--text-muted);
     text-decoration: none;
     transition: color 0.2s;
+}
+
+.avatar-menu-icon {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
 }
 
 .avatar-menu-link:hover,

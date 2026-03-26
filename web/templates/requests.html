@@ -22,13 +22,10 @@
                     {% if video.duration %}
                     <span class="duration-badge">{{ format_duration(video.duration) }}</span>
                     {% endif %}
-                    {% if video.category %}
-                    <span class="category-badge category-{{ video.category }}">{{ cat_label(video.category, short=True) }}</span>
-                    {% endif %}
                 </div>
                 <div class="video-info">
                     <h3 class="video-title">{{ video.title }}</h3>
-                    <p class="video-channel">{{ video.channel_name }}</p>
+                    <p class="video-channel">{{ video.channel_name }}{% if video.category %}<span class="category-badge category-{{ video.category }} request-cat-badge">{{ cat_label(video.category, short=True) }}</span>{% endif %}</p>
                 </div>
             </a>
             {% endfor %}
@@ -55,13 +52,10 @@
                     {% if video.duration %}
                     <span class="duration-badge">{{ format_duration(video.duration) }}</span>
                     {% endif %}
-                    {% if video.category %}
-                    <span class="category-badge category-{{ video.category }}">{{ cat_label(video.category, short=True) }}</span>
-                    {% endif %}
                 </div>
                 <div class="video-info">
                     <h3 class="video-title">{{ video.title }}</h3>
-                    <p class="video-channel">{{ video.channel_name }}</p>
+                    <p class="video-channel">{{ video.channel_name }}{% if video.category %}<span class="category-badge category-{{ video.category }} request-cat-badge">{{ cat_label(video.category, short=True) }}</span>{% endif %}</p>
                 </div>
             </a>
             {% endfor %}
