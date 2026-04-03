@@ -14,4 +14,4 @@ COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
 ENTRYPOINT ["/entrypoint.sh"]
-CMD ["sh", "-c", "if [ -f /app/config.yaml ]; then exec python main.py -c /app/config.yaml -v; else exec python main.py -v; fi"]
+CMD ["sh", "-c", "if [ -f /app/config.yaml ]; then exec python main.py -c /app/config.yaml; else exec python main.py; fi"]

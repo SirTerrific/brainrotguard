@@ -3,7 +3,7 @@
 import os
 import pytest
 
-from config import Config, expand_env_vars, load_config, WebConfig
+from config import AppConfig, Config, expand_env_vars, load_config, WebConfig
 
 
 class TestExpandEnvVars:
@@ -70,16 +70,62 @@ watch_limits:
         assert cfg.telegram.admin_chat_id == "77777"
 
 
+class TestAppConfig:
+    def test_log_level_default(self):
+        cfg = AppConfig()
+        assert cfg.log_level == "info"
+
+    def test_log_level_valid_values(self):
+        for level in ("debug", "info", "warning", "error"):
+            cfg = AppConfig(log_level=level)
+            assert cfg.log_level == level
+
+    def test_log_level_case_insensitive(self):
+        cfg = AppConfig(log_level="WARNING")
+        assert cfg.log_level == "warning"
+
+    def test_log_level_invalid_falls_back(self):
+        cfg = AppConfig(log_level="banana")
+        assert cfg.log_level == "info"
+
+    def test_log_level_from_yaml(self, tmp_path):
+        cfg_file = tmp_path / "log.yaml"
+        cfg_file.write_text("""\
+app:
+  log_level: warning
+web:
+  host: 0.0.0.0
+  port: 8080
+telegram:
+  bot_token: "t"
+  admin_chat_id: "1"
+youtube:
+  search_max_results: 5
+database:
+  path: "test.db"
+watch_limits:
+  daily_limit_minutes: 60
+""")
+        cfg = Config.from_yaml(cfg_file)
+        assert cfg.app.log_level == "warning"
+
+    def test_log_level_from_env(self, monkeypatch):
+        monkeypatch.setenv("BRG_LOG_LEVEL", "error")
+        cfg = Config.from_env()
+        assert cfg.app.log_level == "error"
+
+
 class TestConfigFromEnv:
     def test_defaults(self, monkeypatch):
         # Clear any env vars that might interfere
         for var in ["BRG_WEB_HOST", "BRG_WEB_PORT", "BRG_BOT_TOKEN",
                      "BRG_ADMIN_CHAT_ID", "BRG_BASE_URL", "BRG_PIN", "BRG_LOCALE",
-                     "BRG_TIME_FORMAT"]:
+                     "BRG_TIME_FORMAT", "BRG_LOG_LEVEL"]:
             monkeypatch.delenv(var, raising=False)
         cfg = Config.from_env()
         assert cfg.app.locale == "en"
         assert cfg.app.time_format == "locale"
+        assert cfg.app.log_level == "info"
         assert cfg.web.host == "0.0.0.0"
         assert cfg.web.port == 8080
         assert cfg.telegram.bot_token == ""

@@ -33,11 +33,21 @@ def expand_env_vars(value: Any) -> Any:
         return value
 
 
+VALID_LOG_LEVELS = {"debug", "info", "warning", "error"}
+
+
 @dataclass
 class AppConfig:
     """Application-wide configuration."""
     locale: str = "en"
     time_format: str = "locale"
+    log_level: str = "info"
+
+    def __post_init__(self):
+        self.log_level = self.log_level.lower()
+        if self.log_level not in VALID_LOG_LEVELS:
+            logger.warning(f"Invalid log_level '{self.log_level}', defaulting to 'info'")
+            self.log_level = "info"
 
 
 @dataclass
@@ -130,6 +140,7 @@ class Config:
             app=AppConfig(
                 locale=os.environ.get("BRG_LOCALE", "en"),
                 time_format=os.environ.get("BRG_TIME_FORMAT", "locale"),
+                log_level=os.environ.get("BRG_LOG_LEVEL", "info"),
             ),
             web=WebConfig(
                 host=os.environ.get("BRG_WEB_HOST", "0.0.0.0"),

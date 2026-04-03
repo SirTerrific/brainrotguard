@@ -1,6 +1,7 @@
 app:
   locale: en  # supported: en, nb
   time_format: locale  # locale, 12h, or 24h
+  log_level: info  # debug, info, warning, error
 
 web:
   host: 0.0.0.0

@@ -15,6 +15,7 @@ BRG_BASE_URL=http://192.168.1.100:8080
 app:
   locale: en             # UI/bot language: en or nb
   time_format: locale    # locale default, or force 12h / 24h time display
+  log_level: info        # debug, info, warning, or error
 
 web:
   host: 0.0.0.0         # listen on all network interfaces

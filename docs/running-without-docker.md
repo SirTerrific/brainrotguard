@@ -19,7 +19,7 @@ cp config.example.yaml config.yaml
 # Edit config.yaml if you want to change defaults
 
 # Run
-export $(cat .env | xargs) && python main.py -c config.yaml -v
+export $(cat .env | xargs) && python main.py -c config.yaml
 ```
 
 To keep it running in the background, use `screen`, `tmux`, or set up a systemd service.

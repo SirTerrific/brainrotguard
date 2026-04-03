@@ -21,10 +21,8 @@ from web.middleware import SecurityHeadersMiddleware, PinAuthMiddleware
 from youtube.extractor import configure_timeout, YouTubeExtractor
 from i18n import get_locale, get_time_format
 
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-)
+LOG_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+logging.basicConfig(level=logging.INFO, format=LOG_FORMAT)
 logger = logging.getLogger("brainrotguard")
 
 
@@ -133,11 +131,12 @@ class BrainRotGuard:
             await self.bot.start()
 
         # Start FastAPI via uvicorn
+        uvi_level = logging.getLogger().getEffectiveLevel()
         config = uvicorn.Config(
             fastapi_app,
             host=self.config.web.host,
             port=self.config.web.port,
-            log_level="info",
+            log_level=logging.getLevelName(uvi_level).lower(),
         )
         server = uvicorn.Server(config)
 
@@ -245,13 +244,24 @@ class BrainRotGuard:
 async def main() -> None:
     parser = argparse.ArgumentParser(description="BrainRotGuard")
     parser.add_argument("-c", "--config", help="Path to config file", default=None)
-    parser.add_argument("-v", "--verbose", action="store_true", help="Verbose logging")
+    parser.add_argument("-v", "--verbose", action="store_true", help="Verbose logging (overrides log_level to debug)")
+    parser.add_argument("--log-level", choices=["debug", "info", "warning", "error"],
+                        help="Set log level (overrides config file)")
     args = parser.parse_args()
 
-    if args.verbose:
-        logging.getLogger().setLevel(logging.DEBUG)
-
     config = load_config(args.config)
+
+    # Priority: --verbose > --log-level > config/env > default (info)
+    if args.verbose:
+        log_level = "debug"
+    elif args.log_level:
+        log_level = args.log_level
+    else:
+        log_level = config.app.log_level
+
+    numeric_level = getattr(logging, log_level.upper())
+    logging.getLogger().setLevel(numeric_level)
+
     app = BrainRotGuard(config)
 
     loop = asyncio.get_event_loop()
