@@ -11,7 +11,7 @@ from pathlib import Path
 
 import uvicorn
 
-from config import load_config, Config
+from config import load_config, Config, VALID_LOG_LEVELS
 from data.child_store import ChildStore
 from data.video_store import VideoStore
 from bot.telegram_bot import BrainRotGuardBot
@@ -245,22 +245,21 @@ async def main() -> None:
     parser = argparse.ArgumentParser(description="BrainRotGuard")
     parser.add_argument("-c", "--config", help="Path to config file", default=None)
     parser.add_argument("-v", "--verbose", action="store_true", help="Verbose logging (overrides log_level to debug)")
-    parser.add_argument("--log-level", choices=["debug", "info", "warning", "error"],
+    parser.add_argument("--log-level", choices=sorted(VALID_LOG_LEVELS),
                         help="Set log level (overrides config file)")
     args = parser.parse_args()
 
+    # Apply CLI-only overrides before load_config so config-time warnings respect them
+    if args.verbose:
+        logging.getLogger().setLevel(logging.DEBUG)
+    elif args.log_level:
+        logging.getLogger().setLevel(getattr(logging, args.log_level.upper()))
+
     config = load_config(args.config)
 
-    # Priority: --verbose > --log-level > config/env > default (info)
-    if args.verbose:
-        log_level = "debug"
-    elif args.log_level:
-        log_level = args.log_level
-    else:
-        log_level = config.app.log_level
-
-    numeric_level = getattr(logging, log_level.upper())
-    logging.getLogger().setLevel(numeric_level)
+    # If no CLI override, apply config/env level
+    if not args.verbose and not args.log_level:
+        logging.getLogger().setLevel(getattr(logging, config.app.log_level.upper()))
 
     app = BrainRotGuard(config)
 
