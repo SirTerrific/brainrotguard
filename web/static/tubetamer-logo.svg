@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 130">
+  <!-- Background -->
+  <rect width="480" height="130" rx="22" fill="#0F172A"/>
+
+  <!-- KNOT ICON — same paths as tubetamer-icon.svg, scaled to ~120×120 and centred vertically -->
+  <g transform="translate(5,5) scale(0.6)">
+
+    <!-- Back segment -->
+    <path d="M 35,162
+             C 28,128 28,75 52,50
+             C 72,28 108,22 140,35
+             C 168,48 180,82 170,118
+             C 162,142 142,158 115,162
+             C 100,165 85,162 76,156
+             C 68,150 65,142 68,133"
+          fill="none" stroke="#0D9488" stroke-width="22"
+          stroke-linecap="round" stroke-linejoin="round"/>
+
+    <!-- Gap at crossing -->
+    <path d="M 62,132 C 64,127 67,122 72,118"
+          fill="none" stroke="#0F172A" stroke-width="32"
+          stroke-linecap="round"/>
+
+    <!-- Front segment -->
+    <path d="M 60,126
+             C 66,118 75,111 87,108
+             C 103,104 121,110 137,125
+             C 152,139 162,153 167,162"
+          fill="none" stroke="#2DD4BF" stroke-width="22"
+          stroke-linecap="round" stroke-linejoin="round"/>
+
+    <!-- Highlights -->
+    <path d="M 35,162
+             C 28,128 28,75 52,50
+             C 72,28 108,22 140,35
+             C 168,48 180,82 170,118
+             C 162,142 142,158 115,162
+             C 100,165 85,162 76,156
+             C 68,150 65,142 68,133"
+          fill="none" stroke="#5EEAD4" stroke-width="6"
+          stroke-linecap="round" stroke-linejoin="round" opacity="0.35"/>
+    <path d="M 60,126
+             C 66,118 75,111 87,108
+             C 103,104 121,110 137,125
+             C 152,139 162,153 167,162"
+          fill="none" stroke="#5EEAD4" stroke-width="6"
+          stroke-linecap="round" stroke-linejoin="round" opacity="0.35"/>
+  </g>
+
+  <!-- Thin vertical separator -->
+  <line x1="138" y1="22" x2="138" y2="108" stroke="#1E293B" stroke-width="1.5"/>
+
+  <!-- Wordmark -->
+  <text x="155" y="68"
+        font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif"
+        font-size="44" font-weight="700" fill="#2DD4BF"
+        letter-spacing="-0.5">TubeTamer</text>
+
+  <!-- Tagline -->
+  <text x="157" y="93"
+        font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif"
+        font-size="16" font-weight="400" fill="#64748B"
+        letter-spacing="0.4">YouTube approval for kids</text>
+</svg>

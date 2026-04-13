@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="web/static/brg-logo.png" alt="TubeTamer" width="300">
+  <img src="web/static/tubetamer-logo.svg" alt="TubeTamer" width="300">
 </p>
 
 <p align="center">

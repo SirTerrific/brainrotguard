@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <!-- Background -->
+  <rect width="200" height="200" rx="44" fill="#0F172A"/>
+
+  <!-- BACK SEGMENT (darker teal):
+       Left tail → up → over top of loop → down right side → bottom of loop → approaching crossing -->
+  <path d="M 35,162
+           C 28,128 28,75 52,50
+           C 72,28 108,22 140,35
+           C 168,48 180,82 170,118
+           C 162,142 142,158 115,162
+           C 100,165 85,162 76,156
+           C 68,150 65,142 68,133"
+        fill="none" stroke="#0D9488" stroke-width="22"
+        stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- GAP: erase back strand at crossing so front can pass over -->
+  <path d="M 62,132 C 64,127 67,122 72,118"
+        fill="none" stroke="#0F172A" stroke-width="32"
+        stroke-linecap="round"/>
+
+  <!-- FRONT SEGMENT (bright teal):
+       Exits loop through the opening, crosses OVER back strand, exits as right tail -->
+  <path d="M 60,126
+           C 66,118 75,111 87,108
+           C 103,104 121,110 137,125
+           C 152,139 162,153 167,162"
+        fill="none" stroke="#2DD4BF" stroke-width="22"
+        stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- HIGHLIGHT on back segment — thin lighter stroke for 3-D tube effect -->
+  <path d="M 35,162
+           C 28,128 28,75 52,50
+           C 72,28 108,22 140,35
+           C 168,48 180,82 170,118
+           C 162,142 142,158 115,162
+           C 100,165 85,162 76,156
+           C 68,150 65,142 68,133"
+        fill="none" stroke="#5EEAD4" stroke-width="6"
+        stroke-linecap="round" stroke-linejoin="round" opacity="0.35"/>
+
+  <!-- HIGHLIGHT on front segment -->
+  <path d="M 60,126
+           C 66,118 75,111 87,108
+           C 103,104 121,110 137,125
+           C 152,139 162,153 167,162"
+        fill="none" stroke="#5EEAD4" stroke-width="6"
+        stroke-linecap="round" stroke-linejoin="round" opacity="0.35"/>
+</svg>
