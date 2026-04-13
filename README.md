@@ -69,23 +69,6 @@ The kid has **full browser access** — only YouTube and Google Video are blocke
 
 > **Standard embed mode** is also available if you prefer not to use local downloads — works the same as the original project, but requires YouTube to be accessible on the tablet.
 
-### Why I Built This
-
-<details>
-<summary>The short version: YouTube's algorithm was winning, and Google's new restrictions nearly killed the embed approach entirely.</summary>
-
-I'm a father of a preteen son. I didn't want to block YouTube completely — YouTube is genuinely how I learn things myself, and I wanted my son to have that same ability to research topics, explore educational content, and develop the problem-solving habit of "let me figure this out." That's a skill I want him to have.
-
-The problem was his feed. It was overrun with gamers screaming into microphones and brainrot content. I'd tell him to change the channel every time I walked by and heard one of those obnoxious gaming videos. He'd switch, but YouTube's algorithm would pull him right back within minutes. The algorithm is designed to keep kids glued — and it's very good at its job.
-
-Every parental control I tried was either too restrictive (block YouTube entirely) or too permissive (YouTube Kids still recommends garbage). I needed the middle ground: let him explore and search freely, but give me the final say on what actually plays.
-
-TubeTamer removes the algorithm entirely. There's no autoplay, no "up next" sidebar, no recommendation engine pulling him deeper. He searches for what he wants, I approve or deny, and the video plays and stops. Done. No rabbit holes.
-
-Don't want them watching gaming content? Block those channels. Tired of a specific creator? One tap. You can allow the channels you trust (educational, science, building, nature) and block the ones you don't — and it sticks.
-
-Now I curate his content and I can see the difference. He's not parroting gamer lingo back at me anymore. The stuff he watches is actually interesting — things he's curious about, things he's learning from. I pair this with Google Family Link on his device for general screen time, but TubeTamer is what controls YouTube specifically: daily time limits, scheduled access windows, and per-channel approval. Family Link says "the tablet turns off at 8pm." TubeTamer says "you can watch 2 hours of entertainment YouTube today, but educational content is unlimited — and only from channels I've approved."
-</details>
 
 ## Why This Fork?
 
