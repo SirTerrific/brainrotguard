@@ -32,28 +32,42 @@ No YouTube account needed on the tablet. No ads. No algorithmic rabbit holes. No
 ### How It Works
 
 ```
-Kid's Tablet ──────────────────────────────────────────────────── Parent's Phone
-      │                                                                  │
-      │  1. Search & Request                                             │
-      ▼                                                                  │
- TubeTamer Server ──── 2. Notify ──── Telegram Cloud ──── 3. Approve ──►│
-      │                                                                  │
-      │  4. Download video (yt-dlp + ffmpeg)                             │
-      │     └─ stores locally on your server                             │
-      │                                                                  │
-      │  5. Stream video from server to tablet                           │
-      ▼                                                                  │
- Kid's Tablet (plays video from local server — YouTube never contacted)
+Your Network
+┌─────────────────────────────────────────────────────────────────────┐
+│                                                                     │
+│  DNS Block (Pi-hole / AdGuard / router)                             │
+│  youtube.com ──────────────────────────────────────────► BLOCKED ✗  │
+│  googlevideo.com ──────────────────────────────────────► BLOCKED ✗  │
+│                                                                     │
+│  Kid's Tablet                    TubeTamer Server                   │
+│  ┌──────────────┐                ┌────────────────────┐             │
+│  │ Browser      │                │ Whitelisted in DNS │             │
+│  │ youtube.com → BLOCKED         │ youtube.com ──────►│─── yt-dlp ──┼──► YouTube
+│  │              │   1. Request   │                    │             │
+│  │ TubeTamer ───┼───────────────►│  2. Notify parent  │             │
+│  │ (allowed) ◄──┼── 6. Stream ──│◄─ 5. Download done │             │
+│  └──────────────┘                └────────────────────┘             │
+│                                          │                          │
+└──────────────────────────────────────────┼──────────────────────────┘
+                                           │ 3. Telegram notification
+                                           ▼
+                                    Parent's Phone
+                                    [Approve] [Deny]
+                                       4. ▼
+                                    Server downloads
+                                    video via yt-dlp
 ```
 
-1. Kid opens TubeTamer on their tablet and searches for a video
-2. They tap **Request** on the one they want to watch
+1. **YouTube is blocked** on the kid's device via DNS (Pi-hole, AdGuard, or router) — `youtube.com` and `googlevideo.com` are unreachable from the tablet
+2. Kid opens TubeTamer (allowed) in any browser, searches for a video, taps **Request**
 3. You get a Telegram notification with thumbnail, title, channel, and duration
-4. You tap **Approve** or **Deny** — the server queues the download immediately
-5. The video downloads in the background (yt-dlp + ffmpeg, stored on your server)
-6. The tablet streams the video directly from your server — no YouTube, no Google, no ads
+4. You tap **Approve** — the server (whitelisted in your DNS, so it can reach YouTube) queues the download
+5. The video downloads in the background via yt-dlp + ffmpeg, stored locally on your server
+6. The tablet streams the video from your server — the tablet never contacted YouTube
 
-> **Standard embed mode** is also available if you prefer not to use local downloads — works the same as the original project.
+The kid has **full browser access** — only YouTube and Google Video are blocked, not the internet. No Family Link lockdowns, no browser restrictions needed.
+
+> **Standard embed mode** is also available if you prefer not to use local downloads — works the same as the original project, but requires YouTube to be accessible on the tablet.
 
 ### Why I Built This
 
@@ -157,13 +171,9 @@ docker pull ghcr.io/sirterrific/tubetamer:latest
 ```
 See the [full setup guide](docs/setup.md#using-the-pre-built-docker-image) for compose file details.
 
-**Unraid:** Search for **TubeTamer** in Community Applications, or download the template manually:
-```bash
-wget -O /boot/config/plugins/dockerMan/templates-user/my-tubetamer.xml \
-  https://raw.githubusercontent.com/SirTerrific/tubetamer/main/unraid-template.xml
-```
+**Block YouTube on your network** (recommended — makes local playback the only way to watch):
 
-**Important:** You'll also want to [lock down the kid's device](docs/setup.md#step-5-lock-down-the-kids-device) so they can't bypass TubeTamer by opening YouTube directly.
+Block `youtube.com` and `googlevideo.com` in your DNS resolver (Pi-hole, AdGuard Home, or router), and whitelist your TubeTamer server's IP so it can still download videos. See [Step 5](docs/setup.md#step-5-block-youtube-on-the-network) for details.
 
 ## What You'll Need
 
@@ -173,11 +183,13 @@ wget -O /boot/config/plugins/dockerMan/templates-user/my-tubetamer.xml \
 | **Docker** | [Install Docker](https://docs.docker.com/get-docker/) |
 | **Telegram account** | The messaging app where you'll receive approval requests |
 | **Telegram bot token** | Created in 5 minutes via [@BotFather](https://core.telegram.org/bots#how-do-i-create-a-bot) |
-| **Device lockdown** | [Family Link](https://families.google.com/familylink/) (Android) or [Screen Time](https://support.apple.com/en-us/HT208982) (iOS) to restrict browser access |
+| **DNS resolver** (recommended) | [Pi-hole](https://pi-hole.net/), [AdGuard Home](https://adguard.com/adguard-home/overview.html), or a router with DNS filtering to block `youtube.com` on the kid's device |
 
 > **Why Telegram?** It was the easiest way to build instant notifications with approve/deny buttons that work from your phone. No custom app to develop, no push notification infrastructure to maintain — Telegram handles all of that.
 
 > **Network note:** TubeTamer runs on your home network. Your child's device needs to be on the same network to access the web UI and stream videos. You can approve/deny from anywhere via Telegram — you don't need to be home for that part.
+
+> **DNS note:** When you block `youtube.com` via DNS, make sure your TubeTamer server either uses a different DNS resolver (e.g. `8.8.8.8` directly) or is whitelisted by IP in your AdGuard/Pi-hole — otherwise the server won't be able to download videos either.
 
 ## Documentation
 
